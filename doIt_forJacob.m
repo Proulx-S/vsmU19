@@ -1,7 +1,7 @@
 clear all
 close all
 
-%% Download data from zenodo and put in dataDir
+%% Download data from zenodo (https://doi.org/10.5281/zenodo.13685568) and put in dataDir
 dataDir = fullfile(pwd,'data','bloodfest2024human');
 if ~exist(dataDir,'dir'); mkdir(dataDir); end
 
