@@ -44,6 +44,9 @@ for trial = 1:1
         Stimvec = vfMRI_tmp.dsgn.onsetList';
         stim_omit = vfMRI_tmp.dsgn.nullTrial;
         Stimvec(stim_omit) = [];
+        %Stim frequency
+        stimT = str2double(extractBefore(vfMRI_tmp.dsgn.label,'s'));
+        stimFreq = 1/stimT; % Hz
 
         output.Fs = Fs;
         output.Tvec = Tvec;
@@ -153,7 +156,38 @@ for trial = 1:1
             set(gca,'YColor',[0 0 1]);
 
             %% CALCULATE LINE SPECTRA
+            tapers_FT = fft(tapers,nfft)/Fs;
+            tapers_FT = tapers_FT(1,:);
+            t_norm = sum(tapers_FT.^2);
 
+            % Amplitudes at all frequencies f
+            A = zeros(length(f),size(taperedFFT,3),'single');
+            A = complex(A);
+            for k = 1:ntapers(2)
+                A = A + tapers_FT(k).*squeeze(taperedFFT(:,k,:));
+            end
+            A = A./t_norm;
+            mu = scores*A';
+
+            % Amplitudes for the stim frequencies and harmonics
+            f_stim = stimFreq*[1:1:50];
+            f_stim(f_stim > Fs/2) = []; %Stim frequencies and harmonics.
+            % Find f_stim values in f vector (and therefore tapered FFT).
+            % Just do a loop for now.
+            f_stim_loc = zeros(length(f_stim),1);
+            for i = 1:length(f_stim)
+                f_diff = abs(f - f_stim(i));
+                [~,minloc] = min(f_diff);
+                f_stim_loc(i) = minloc;
+            end
+
+            A = zeros(length(f_stim),size(taperedFFT,3),'single');
+            A = complex(A);
+            for k = 1:ntapers(2) 
+                A = A + tapers_FT(k).*squeeze(taperedFFT(f_stim_loc,k,:));
+            end
+            A = A./t_norm;
+            toplot.amp_fstim = scores*A';
 
 
         end
