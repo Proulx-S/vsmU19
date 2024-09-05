@@ -168,6 +168,7 @@ for trial = 1:1
             end
             A = A./t_norm;
             mu = scores*A';
+            toplot.amp = mu;
 
             % Amplitudes for the stim frequencies and harmonics
             f_stim = stimFreq*[1:1:50];
@@ -188,6 +189,25 @@ for trial = 1:1
             end
             A = A./t_norm;
             toplot.amp_fstim = scores*A';
+
+            % CALCULATE F-STATISTICS
+            p = 0.05; % Significance level for f-test
+            sig=finv(1-p,2,2*ntapers(2)-2);
+            disp(['Calculating F-Statistics at significance level ',num2str(p),' F_sig = ',num2str(sig)])
+            % All frequencies.
+            Fde = zeros(size(mu),'single');
+            for k = 1:ntapers(2)
+                z = scores*squeeze(taperedFFT(:,k,:))' - mu*tapers_FT(k); 
+                Fde = Fde + conj(z).*z;
+            end
+            F = (size(taperedFFT,2)-1)*(conj(mu).*mu)*t_norm./Fde; % Space x freq
+            % [Fval,A,f,sig] = ftestc(data,params,p,plt); % from Chronux
+
+            % Stim frequencies.
+            F_stim = F(:,f_stim_loc);
+
+            % CALCULATE RESIDUAL SPECTRUM
+            
 
 
         end
