@@ -27,8 +27,10 @@ data = vfMRI.task_10sPrd1sDur.volTs(run).mri.vec;              % timeseries data
 vfMRI.task_10sPrd1sDur.volTs(run).mri.vecInfo
 figure('WindowStyle','docked');
 imagesc(vfMRI.task_10sPrd1sDur.volTs(run).mri.imMean)  % timeaveraged data (whole slice)
-figure('WindowStyle','docked'); %JD
+daspect([1,1,1]);
+figure('WindowStyle','docked');
 imagesc(vfMRI.task_10sPrd1sDur.volTs(run).mri.vol2vec) % vessel mask (vol2vec) used to convert whole-slice data (vol) to vectorize data (vec)
+daspect([1,1,1]);
 
 
 %% Extra info
