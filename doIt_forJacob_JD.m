@@ -10,7 +10,7 @@ dir(dataDir)
 
 
 %% Load data (one file per subject)
-load(fullfile(dataDir,'vsmDrivenP2.mat'))
+load(fullfile(dataDir,'vsmDrivenP1.mat'))
 
 fields(vfMRI)                       % substructures are different stimulus conditions
 
@@ -23,7 +23,7 @@ vfMRI.task_10sPrd1sDur.volTs(:).mri % mri data structure (1 per acquisition run)
 
 %% THE data
 run = 1;
-vfMRI.task_10sPrd1sDur.volTs(run).mri.vec              % timeseries data [time x voxel] (vessel voxels only)
+data = vfMRI.task_10sPrd1sDur.volTs(run).mri.vec;              % timeseries data [time x voxel] (vessel voxels only)
 vfMRI.task_10sPrd1sDur.volTs(run).mri.vecInfo
 figure('WindowStyle','docked');
 imagesc(vfMRI.task_10sPrd1sDur.volTs(run).mri.imMean)  % timeaveraged data (whole slice)
