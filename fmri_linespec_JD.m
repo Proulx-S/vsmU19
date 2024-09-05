@@ -59,11 +59,13 @@ for trial = 1:1
         if SVD_Q == 1
             [U,S,V]=svd(data_mean,0);
             figure('WindowStyle','docked');
-            plot(log10(diag(S)));
+            plot(log10(diag(S).^2));
             xlabel('Mode','Interpreter','latex');
-            ylabel('Singular Value','Interpreter','latex');
+            ylabel('Log10 Eigenvalue $\sigma^2$','Interpreter','latex');
 
             sig_modes = round(size(data,1)/2); %Start with only half the modes as test.
+            % sig_modes = 10;
+            % sig_modes = round(size(data,1));
             output.sig_modes = sig_modes;
             Un=single(U(:,1:sig_modes));
             Sn=single(S(1:sig_modes,1:sig_modes));
@@ -77,7 +79,8 @@ for trial = 1:1
             xline(Stimvec,'Color','k','Alpha',0.2);
             xlabel('Time (s)','Interpreter','latex');
             ylabel('Temporal mode value','Interpreter','latex');
-            legend({'Mode 1','Mode 2','Mode 3'})
+            legend({'Mode 1','Mode 2','Mode 3','Stim Start'})
+            %TO DO: PLOT SPATIAL MODES BACK TO MASK
 
             %CALCULATE AVEAGE SPECTRUM
             num_pixel = size(Un,1);
@@ -124,7 +127,35 @@ for trial = 1:1
             toplot.f = [];
             toplot.f = f;
             figure('WindowStyle','docked');
-            plot(f, log10(mean(S_tot, 1)));
+            plot(f, log10(mean(S_tot, 1)),'k');
+            xlabel('Frequency (Hz)','Interpreter','latex');
+            ylabel('log10(Power)','Interpreter','latex');
+            title({'Average Spectrum across all pixels',['Half BW = ',num2str(round(Delta_f,4))]},'Interpreter','latex');
+
+
+            %% CALCULATE GLOBAL COHERENCE
+            % Use same f vector from spectrum calculation
+            plot_num_f_points = length(f);
+            toplot.coherence = zeros(plot_num_f_points,1);
+            tic
+            coherence = zeros(length(f),1);
+            for i = 1:length(toplot.f)
+                m = scores*squeeze(taperedFFT(i,:,:))'; %m is space x tapers
+                s = svd(m,0);
+                coherence(i) = squeeze(s(1))^2./sum(s.^2); %"Global coherence" in Observed brain dynamics p210
+            end
+            toplot.coherence = coherence;
+            toc;
+            yyaxis right
+            plot(f,coherence,'b')
+            ylim([0 1]);
+            ylabel('Spatial Coherence','Interpreter','latex','Color','b')
+            set(gca,'YColor',[0 0 1]);
+
+            %% CALCULATE LINE SPECTRA
+
+
+
         end
 
 
