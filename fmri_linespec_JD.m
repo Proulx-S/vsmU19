@@ -7,15 +7,16 @@
 clear; clc; close all;
 cd('Y:\DataAnalysis\MRI\Human240904\13685568');
 dataDir = fullfile(pwd,'data');
-dataFile = 'vsmDrivenP1.mat';
+% dataFile = 'vsmDrivenP1.mat';
+dataFile = 'vsmDrivenP2.mat';
 disp(['processing ',dataFile]);
 subj = extractBetween(dataFile,'Driven','.mat');
 subj = subj{1};
 load(fullfile(dataDir,dataFile))
 %% Analyze
 trials = fields(vfMRI);
-% for trial = 1:length(trials)
-for trial = 1:1
+for trial = 1:length(trials)
+% for trial = 2:2
     toplot = struct(); %Structure to save results
     toplot.trial = trial;
     SVD_Q = 1; %Perform space-time SVD before line-spec?
@@ -46,8 +47,11 @@ for trial = 1:1
         Toffset = Tvec(1);
         Tvec = Tvec - Toffset;
         Stimvec = vfMRI_tmp.dsgn.onsetList';
-        stim_omit = vfMRI_tmp.dsgn.nullTrial;
-        Stimvec(stim_omit) = [];
+        try
+            stim_omit = vfMRI_tmp.dsgn.nullTrial;
+            Stimvec(stim_omit) = []; %There are omitted stims outside of onsetlist size
+        catch ME
+        end
         %Stim frequency
         stimT = str2double(extractBefore(vfMRI_tmp.dsgn.label,'s'));
         stimFreq = 1/stimT; % Hz
@@ -72,11 +76,12 @@ for trial = 1:1
             % figure('WindowStyle','docked');
             h.mainfig = figure();
             h.tabgroup = uitabgroup;
-            h.tab(1) = uitab(h.tabgroup,'Title','S-T Sing. Values');
-            h.axes(1) = axes('Parent',h.tab(1))
+            h.tab(1) = uitab(h.tabgroup,'Title','S-T SVD Sing. Values');
+            h.axes(1) = axes('Parent',h.tab(1));
             plot(log10(diag(S).^2));
             xlabel('Mode','Interpreter','latex');
             ylabel('Log10 Eigenvalue $\sigma^2$','Interpreter','latex');
+            title('Space-Time SVD Eigenspectrum','Interpreter','latex');
 
             sig_modes = round(size(data,1)/2); %Start with only half the modes as test.
             % sig_modes = 10;
@@ -107,7 +112,7 @@ for trial = 1:1
                 mode1(find_mask) = U(:,ii);
                 % figure;
                 h.tab(ii+2) = uitab(h.tabgroup,'Title',sprintf('M%.0f',ii));
-                h.axes(ii+2) = axes('Parent',h.tab(ii+2))
+                h.axes(ii+2) = axes('Parent',h.tab(ii+2));
                 subplot(2,1,1);
                 imagesc(mode1);
                 xlim([130 240])
@@ -127,7 +132,7 @@ for trial = 1:1
             % ############################# % Choose bandwidth. More
             % tapers->better for line-spectrum regression
             % Might have to do Delta_f = 0.025 to avoid BW crossover at period = 20s
-            Delta_f = 0.03; %Half-Bandwidth. 0.02-> ~11 tapers | 0.03 -> ~17 tapers | 0.04-> ~22 tapers
+            Delta_f = 0.025; %Half-Bandwidth. 0.02-> ~11 tapers | 0.03 -> ~17 tapers | 0.04-> ~22 tapers
             toplot.Delta_f = Delta_f;
             % ############################# %
             padding_ratio = 2; 
@@ -175,11 +180,12 @@ for trial = 1:1
             toplot.f = f;
             %summaryfig = figure('WindowStyle','docked');
             h.tab(10) = uitab(h.tabgroup,'Title','AvgSpec');
-            h.axes(10) = axes('Parent',h.tab(10))
+            h.axes(10) = axes('Parent',h.tab(10));
             plot(f, log10(mean(S_tot, 1)),'k');
             xlabel('Frequency (Hz)','Interpreter','latex');
             ylabel('log10(Power)','Interpreter','latex');
-            title({'Average Spectrum across all pixels',['Half BW = ',num2str(round(Delta_f,4))]},'Interpreter','latex');
+            title({'Average and Residual Spectrum across all pixels',['Half BW = ',num2str(round(Delta_f,4))]},'Interpreter','latex');
+            
 
 
             %% CALCULATE GLOBAL COHERENCE
@@ -242,6 +248,7 @@ for trial = 1:1
 
             % SAVE EXT AMPs and AVG POWER VALUES IN TOPLOT STRUCTURE
             meanpowr_vals = toplot.avgpowr(f_stim_loc);
+            toplot.meanpwr_vals = meanpowr_vals; %Average spectrum power at stim freq and harmonics.
             Extpowr_vals = toplot.amp_fstim;
             Extpowr_vals = abs(Extpowr_vals).^2;
             Extpowr_vals = Extpowr_vals./(2*Delta_f); %Divide by full bandwidth to get line height
@@ -353,7 +360,7 @@ for trial = 1:1
         end
 
         % Save this trial's results. Just do this by trial for now.
-        cd('Y:\DataAnalysis\MRI\Human240904\13685568\results');
+        cd('Y:\DataAnalysis\MRI\Human240904\13685568\results_025HzHalfBW');
         figname = [subj,'_',trialName,'_run',num2str(run),'.fig'];
         savefig(gcf,figname);
         close all
