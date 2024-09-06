@@ -28,7 +28,7 @@ for trial = 1:1
     output.label = vfMRI_tmp.label;
     output.ses = vfMRI_tmp.ses;
     % for run = 1:length(vfMRI_tmp.volTs)
-    for run = 1:1
+    for run = 1:4
         disp(['processing ',trialName,' run ',num2str(run),' of ',num2str(length(vfMRI_tmp.volTs))])
         data = vfMRI_tmp.volTs(run).mri.vec;
         if size(data,1) > size(data,2)
@@ -69,20 +69,42 @@ for trial = 1:1
             sig_modes = round(size(data,1)/2); %Start with only half the modes as test.
             % sig_modes = 10;
             % sig_modes = round(size(data,1));
+            % sig_modes = 8;
             output.sig_modes = sig_modes;
             Un=single(U(:,1:sig_modes));
             Sn=single(S(1:sig_modes,1:sig_modes));
             Vn=single(V(:,1:sig_modes));
 
+            tmp_mask = vfMRI_tmp.volTs(run).mri.vol2vec;
+
+            % for ii = 1:7
+            %     find_mask = find(tmp_mask);
+            %     mode1 = NaN(size(tmp_mask));
+            %     mode1(find_mask) = U(:,ii);
+            %     figure;
+            %     subplot(2,1,1);
+            %     imagesc(mode1);
+            %     xlim([130 240])
+            %     ylim([150 260])
+            %     daspect([1,1,1]);
+            %     colorbar
+            %     title(['Mode ',num2str(ii)]);
+            %     subplot(2,1,2);
+            %     plot(Tvec,Vn(:,ii));
+            %     xlabel('Time (s)')
+            %     ylabel('Temporal mode value')
+            % end
+
+
             clearvars U S V
             figure('WindowStyle','docked');
             plot(Tvec,Vn(:,1),'k'); hold on;
             plot(Tvec,Vn(:,2),'b');
-            plot(Tvec,Vn(:,3),'g');
+            % plot(Tvec,Vn(:,3),'g');
             xline(Stimvec,'Color','k','Alpha',0.2);
             xlabel('Time (s)','Interpreter','latex');
             ylabel('Temporal mode value','Interpreter','latex');
-            legend({'Mode 1','Mode 2','Mode 3','Stim Start'})
+            legend({'Mode 1','Mode 2','Stim Start'})
             %TO DO: PLOT SPATIAL MODES BACK TO MASK
 
             %CALCULATE AVEAGE SPECTRUM
@@ -96,7 +118,7 @@ for trial = 1:1
             % Delta_f = p * toplot.rate / num_frame;
             disp(['Bandwidth = ', num2str(Delta_f), ' Hz'])
             num_tapers = 2 * p - 1;
-            [slep,~] = dpss(num_frame, p, num_tapers);
+            % [slep,~] = dpss(num_frame, p, num_tapers);
             %% Perform Spectral FFT
             % Update half-bandwidth according to the rounded p value
             Delta_f = p * Fs / num_frame;
@@ -105,6 +127,9 @@ for trial = 1:1
             % Fs = toplot.rate;
             nfft = num_frame_pad;
             tapers = dpsschk(ntapers,size(Vn,1),Fs);
+            %TEMPORARY
+            % tapers = tapers/sqrt(Fs);
+
             [f,findx] = getfgrid(Fs,nfft,[0,Fs/2]);
 
             %FFT
@@ -129,7 +154,7 @@ for trial = 1:1
             toplot.mpowr=mean(S_tot,1); %Average spectrum across all pixels
             toplot.f = [];
             toplot.f = f;
-            figure('WindowStyle','docked');
+            summaryfig = figure('WindowStyle','docked');
             plot(f, log10(mean(S_tot, 1)),'k');
             xlabel('Frequency (Hz)','Interpreter','latex');
             ylabel('log10(Power)','Interpreter','latex');
@@ -191,7 +216,9 @@ for trial = 1:1
             toplot.amp_fstim = scores*A';
 
             % CALCULATE F-STATISTICS
+            N = length(Tvec);
             p = 0.05; % Significance level for f-test
+            p= p/length(Tvec); 
             sig=finv(1-p,2,2*ntapers(2)-2);
             disp(['Calculating F-Statistics at significance level ',num2str(p),' F_sig = ',num2str(sig)])
             % All frequencies.
@@ -207,7 +234,46 @@ for trial = 1:1
             F_stim = F(:,f_stim_loc);
 
             % CALCULATE RESIDUAL SPECTRUM
-            
+            % Already have F-values and Amplitudes
+            toplot.amp=toplot.amp*Fs; %Check this.
+            toplot.amp_fstim = toplot.amp_fstim*Fs;
+
+            %From fitlinesc.m
+            fmax = findpeaks(F',sig); %This is the chronux findpeaks
+            C = size(F,1); %Channels
+            freqs=cell(1,C); 
+            Amps=cell(1,C);
+            data_reconstruct = Un*Sn*Vn';
+            datafit = data_reconstruct';
+            %%
+            clearvars i
+            A = toplot.amp';
+            for ch=1:C
+                fsig=f(fmax(ch).loc);
+                freqs{ch}=fsig;
+                Amps{ch}=toplot.amp(ch,fmax(ch).loc);
+                Nf=length(fsig);
+                datafit(:,ch)=exp(i*2*pi*(0:N-1)'*fsig/Fs)*A(fmax(ch).loc,ch)+exp(-i*2*pi*(0:N-1)'*fsig/Fs)*conj(A(fmax(ch).loc,ch));
+                %These are the sinewaves. Only subtract if there were significant sine components.
+            end
+            data_nolines = data_reconstruct' - datafit;
+
+
+            params.tapers = ntapers;
+            params.Fs = Fs;
+            params.pad = 2;
+            [Stot,f]=mtspectrumc(data_mean',params);
+            [Sresid,f]=mtspectrumc(data_nolines,params);
+
+            % hold on
+            % plot(f,log10(mean(Stot,2)))
+            figure(summaryfig);
+            yyaxis left
+            hold on
+            plot(f,log10(mean(Sresid,2)),'m--');
+
+            %%
+
 
 
         end
