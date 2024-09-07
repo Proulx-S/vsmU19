@@ -6,16 +6,16 @@
 %% Load data
 clear; clc; close all;
 cd('Y:\DataAnalysis\MRI\Human240904\13685568');
-dataDir = fullfile(pwd,'data');
-% dataFile = 'vsmDrivenP1.mat';
-dataFile = 'vsmDrivenP2.mat';
+dataDir = fullfile(pwd,'datav2');
+dataFile = 'vsmDrivenP1.mat';
+% dataFile = 'vsmDrivenP2.mat';
 disp(['processing ',dataFile]);
 subj = extractBetween(dataFile,'Driven','.mat');
 subj = subj{1};
 load(fullfile(dataDir,dataFile))
 %% Analyze
 trials = fields(vfMRI);
-for trial = 1:length(trials)
+for trial = 9:length(trials)
 % for trial = 2:2
     toplot = struct(); %Structure to save results
     toplot.trial = trial;
@@ -101,7 +101,10 @@ for trial = 1:length(trials)
             plot(Tvec,Vn(:,1),'k'); hold on;
             plot(Tvec,Vn(:,2),'b');
             % plot(Tvec,Vn(:,3),'g');
+            try %RESTING STATE DOESN'T HAVE ANY STIM VALUES
             xline(Stimvec,'Color','k','Alpha',0.2);
+            catch ME
+            end
             xlabel('Time (s)','Interpreter','latex');
             ylabel('Temporal mode value','Interpreter','latex');
             legend({'Mode 1','Mode 2','Stim Start'})
@@ -132,7 +135,12 @@ for trial = 1:length(trials)
             % ############################# % Choose bandwidth. More
             % tapers->better for line-spectrum regression
             % Might have to do Delta_f = 0.025 to avoid BW crossover at period = 20s
-            Delta_f = 0.025; %Half-Bandwidth. 0.02-> ~11 tapers | 0.03 -> ~17 tapers | 0.04-> ~22 tapers
+            
+            if contains(trialName,'Rest')
+                Delta_f = 0.03;
+            else
+                Delta_f = 0.025; %Half-Bandwidth. 0.02-> ~11 tapers | 0.03 -> ~17 tapers | 0.04-> ~22 tapers
+            end
             toplot.Delta_f = Delta_f;
             % ############################# %
             padding_ratio = 2; 
@@ -360,7 +368,7 @@ for trial = 1:length(trials)
         end
 
         % Save this trial's results. Just do this by trial for now.
-        cd('Y:\DataAnalysis\MRI\Human240904\13685568\results_025HzHalfBW');
+        cd('Y:\DataAnalysis\MRI\Human240904\13685568\results_025HzHalfBW_v2');
         figname = [subj,'_',trialName,'_run',num2str(run),'.fig'];
         savefig(gcf,figname);
         close all
