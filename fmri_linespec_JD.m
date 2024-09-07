@@ -15,8 +15,8 @@ subj = subj{1};
 load(fullfile(dataDir,dataFile))
 %% Analyze
 trials = fields(vfMRI);
-for trial = 9:length(trials)
-% for trial = 2:2
+% for trial = 9:length(trials)
+for trial = 1:1
     toplot = struct(); %Structure to save results
     toplot.trial = trial;
     SVD_Q = 1; %Perform space-time SVD before line-spec?
@@ -140,6 +140,7 @@ for trial = 9:length(trials)
                 Delta_f = 0.03;
             else
                 Delta_f = 0.025; %Half-Bandwidth. 0.02-> ~11 tapers | 0.03 -> ~17 tapers | 0.04-> ~22 tapers
+                % Delta_f = 0.01; %For 50s period only, for summary figure (extracted amplitude)
             end
             toplot.Delta_f = Delta_f;
             % ############################# %
@@ -338,6 +339,8 @@ for trial = 9:length(trials)
             params.pad = 2;
             [Stot,f]=mtspectrumc(data_mean',params);
             [Sresid,f]=mtspectrumc(data_nolines,params);
+            toplot.resid_f = f;
+            toplot.avgResid = mean(Sresid,2);
 
             % hold on
             % plot(f,log10(mean(Stot,2)))
