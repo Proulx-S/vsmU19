@@ -16,7 +16,7 @@ load(fullfile(dataDir,dataFile))
 %% Analyze
 trials = fields(vfMRI);
 % for trial = 9:length(trials)
-for trial = 1:1
+for trial = 4:4
     toplot = struct(); %Structure to save results
     toplot.trial = trial;
     SVD_Q = 1; %Perform space-time SVD before line-spec?
@@ -32,8 +32,8 @@ for trial = 1:1
     toplot.ses = vfMRI_tmp.ses;
 
 
-    for run = 1:length(vfMRI_tmp.volTs)
-    % for run = 3:3
+    % for run = 1:length(vfMRI_tmp.volTs)
+    for run = 3:3
         disp(['processing ',trialName,' run ',num2str(run),' of ',num2str(length(vfMRI_tmp.volTs))])
         data = vfMRI_tmp.volTs(run).mri.vec;
         if size(data,1) > size(data,2)
@@ -108,7 +108,7 @@ for trial = 1:1
             xlabel('Time (s)','Interpreter','latex');
             ylabel('Temporal mode value','Interpreter','latex');
             legend({'Mode 1','Mode 2','Stim Start'})
-            %TO DO: PLOT SPATIAL MODES BACK TO MASK
+            %PLOT SPATIAL MODES BACK TO MASK
             for ii = 1:7
                 find_mask = find(tmp_mask);
                 mode1 = NaN(size(tmp_mask));
@@ -136,12 +136,12 @@ for trial = 1:1
             % tapers->better for line-spectrum regression
             % Might have to do Delta_f = 0.025 to avoid BW crossover at period = 20s
             
-            if contains(trialName,'Rest')
-                Delta_f = 0.03;
-            else
+            % if contains(trialName,'Rest')
+            %     Delta_f = 0.025;
+            % else
                 Delta_f = 0.025; %Half-Bandwidth. 0.02-> ~11 tapers | 0.03 -> ~17 tapers | 0.04-> ~22 tapers
                 % Delta_f = 0.01; %For 50s period only, for summary figure (extracted amplitude)
-            end
+            % end
             toplot.Delta_f = Delta_f;
             % ############################# %
             padding_ratio = 2; 
@@ -334,13 +334,17 @@ for trial = 1:1
             toplot.sig_Amps = sig_Amps; %Average over ~NaN values here at each frequency to plot summary figure.
             %Could also count how many pixels have significant line components -> some area-locking metric.
 
-            params.tapers = ntapers;
+            % params.tapers = ntapers;
+            params.tapers = [0.025 toplot.Tvec(end) 1];
             params.Fs = Fs;
             params.pad = 2;
-            [Stot,f]=mtspectrumc(data_mean',params);
+            [Stot,f]=mtspectrumc(data_reconstruct',params);
+            % [Stot,f]=mtspectrumc(data_mean',params);
             [Sresid,f]=mtspectrumc(data_nolines,params);
             toplot.resid_f = f;
             toplot.avgResid = mean(Sresid,2);
+            toplot.Sresid = Sresid;
+            toplot.Stot = Stot;
 
             % hold on
             % plot(f,log10(mean(Stot,2)))
@@ -365,8 +369,6 @@ for trial = 1:1
             title({'F-statistic', 'Average over pixels, 95th 5th percentile'},'Interpreter','latex');
 
             %%
-
-
 
         end
 

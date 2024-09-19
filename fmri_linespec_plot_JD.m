@@ -740,7 +740,7 @@ print(gcf,'LinePowerAtStimFreq_Harmonics_log10_15ptMovMedian_Spline','-depsc2','
 
 %% Example spectra
 clear; clc; close all;
-cd('Y:\DataAnalysis\MRI\Human240904\13685568\SpectraExamples')
+% cd('Y:\DataAnalysis\MRI\Human240904\13685568\SpectraExamples')
 load("Y:\DataAnalysis\MRI\Human240904\13685568\results_025HzHalfBW_v2\P1_task_eyeOpenRest_run1_toplot.mat");
 figure
 plot(toplot.f,log10(toplot.avgpowr),'k');
@@ -749,9 +749,9 @@ ylabel('log10 Power','Interpreter','latex');
 ax = gca;
 ax.TickLabelInterpreter = 'latex';
 ax.FontSize = 12;
-title({'Resting-State Spectrum Half-BW = 0.03','Average over voxels'},'Interpreter','latex');
-print(gcf,'SubjectP1_RestingStateSpectrum','-depsc2','-r0')
-saveas(gcf,'SubjectP1_RestingStateSpectrum.png');
+title({'Resting-State Spectrum Half-BW = 0.025','Average over voxels'},'Interpreter','latex');
+print(gcf,'SubjectP1_RestingStateSpectrum_BW025','-depsc2','-r0')
+saveas(gcf,'SubjectP1_RestingStateSpectrum_BW025.png');
 
 %Stim Trial Examples
 clear; clc; close all;
@@ -801,7 +801,116 @@ legend({'Average Spectrum','Residual Spectrum'})
 title({'0.2Hz Visual Stimulation Spectrum Half-BW = 0.025','Average over voxels'},'Interpreter','latex');
 print(gcf,'SubjectP1_5sPeriodStim_run2_Spectrum','-depsc2','-r0')
 saveas(gcf,'SubjectP1_5sPeriodStim_run2_Spectrum.png');
+%%
+%Single-ovxel residual spectra
+clear; clc; close all;
+% load("Y:\DataAnalysis\MRI\Human240904\13685568\results_025HzHalfBW_v2\P1_task_10sPrd1sDur_run3_toplot.mat")
+load("Y:\DataAnalysis\MRI\Human240904\13685568\results_025HzHalfBW_v2\P1_task_eyeOpenRest_run1_toplot.mat");
+% figure
+% for i = 1:size(toplot.Sresid,2)
+%     plot(toplot.resid_f,log10(toplot.Stot(:,i)),'k');
+%     hold on;
+%     plot(toplot.resid_f,log10(toplot.Sresid(:,i)),'m--');
+%     xlabel('Frequency (Hz)','Interpreter','latex');
+%     ylabel('log10 Power','Interpreter','latex');
+%     title(sprintf('%.0f',i));
+%     ylim([3.4 4.6])
+%     pause()
+%     hold off
+% end
+% vox = 19;
+% vox = 21;
+% vox = 30;
+vox = 34;
+% vox = 16;
+figure
+plot(toplot.resid_f,log10(toplot.Stot(:,vox)),'k');
+hold on;
+plot(toplot.resid_f,log10(toplot.Sresid(:,vox)),'m--');
+xlabel('Frequency (Hz)','Interpreter','latex');
+ylabel('log10 Power','Interpreter','latex');
+ax = gca;
+ax.TickLabelInterpreter = 'latex';
+ax.FontSize = 12;
+legend({'Average Spectrum','Residual Spectrum'})
+title({'Rest Spectrum Half-BW = 0.025'},'Interpreter','latex');
+% title({'0.1Hz Visual Stimulation Spectrum Half-BW = 0.025'},'Interpreter','latex');
+% print(gcf,['SubjectP1_10sPeriodStim_run3_Voxel',num2str(vox),'_NOLine'],'-depsc2','-r0')
+% saveas(gcf,['SubjectP1_10sPeriodStim_run3_Voxel',num2str(vox),'_NOLine.png']);
+print(gcf,['SubjectP1_REST_Voxel',num2str(vox),'_Spectrum'],'-depsc2','-r0')
+saveas(gcf,['SubjectP1_REST_Voxel',num2str(vox),'_Spectrum.png']);
 
+%%
+%Example time series
+clear; clc; close all;
+cd('Y:\DataAnalysis\MRI\Human240904\13685568');
+dataDir = fullfile(pwd,'datav2');
+dataFile = 'vsmDrivenP1.mat';
+% dataFile = 'vsmDrivenP2.mat';
+disp(['processing ',dataFile]);
+subj = extractBetween(dataFile,'Driven','.mat');
+subj = subj{1};
+load(fullfile(dataDir,dataFile))
+trials = fields(vfMRI);
+trial = 9
+toplot = struct(); %Structure to save results
+toplot.trial = trial;
+SVD_Q = 1; %Perform space-time SVD before line-spec?
+trialName = trials{trial};
+disp(['processing ',trialName])
+vfMRI_tmp = vfMRI.(trialName);
+toplot.SVD_Q = SVD_Q;
+toplot.sub = vfMRI_tmp.sub;
+toplot.label = vfMRI_tmp.label;
+toplot.ses = vfMRI_tmp.ses;
+run = 1
+disp(['processing ',trialName,' run ',num2str(run),' of ',num2str(length(vfMRI_tmp.volTs))])
+data = vfMRI_tmp.volTs(run).mri.vec;
+load("Y:\DataAnalysis\MRI\Human240904\13685568\results_025HzHalfBW_v2\P1_task_eyeOpenRest_run1_toplot.mat");
+%Plot
+figure; 
+plot(toplot.Tvec,mean(data,2),'k');
+xlabel('Time (seconds)','Interpreter','latex');
+ylabel({'Signal','Average over all voxels'},'Interpreter','latex')
+title('Rest (no task)','Interpreter','latex')
+print(gcf,['SubjectP1_Rest_Timeseries'],'-depsc2','-r0')
+saveas(gcf,['SubjectP1_Rest_Timeseries.png']);
+
+
+clear; clc; close all;
+cd('Y:\DataAnalysis\MRI\Human240904\13685568');
+dataDir = fullfile(pwd,'datav2');
+dataFile = 'vsmDrivenP1.mat';
+% dataFile = 'vsmDrivenP2.mat';
+disp(['processing ',dataFile]);
+subj = extractBetween(dataFile,'Driven','.mat');
+subj = subj{1};
+load(fullfile(dataDir,dataFile))
+trials = fields(vfMRI);
+trial = 4
+toplot = struct(); %Structure to save results
+toplot.trial = trial;
+SVD_Q = 1; %Perform space-time SVD before line-spec?
+trialName = trials{trial};
+disp(['processing ',trialName])
+vfMRI_tmp = vfMRI.(trialName);
+toplot.SVD_Q = SVD_Q;
+toplot.sub = vfMRI_tmp.sub;
+toplot.label = vfMRI_tmp.label;
+toplot.ses = vfMRI_tmp.ses;
+run = 3
+disp(['processing ',trialName,' run ',num2str(run),' of ',num2str(length(vfMRI_tmp.volTs))])
+data = vfMRI_tmp.volTs(run).mri.vec;
+load("Y:\DataAnalysis\MRI\Human240904\13685568\results_025HzHalfBW_v2\P1_task_10sPrd1sDur_run3_toplot.mat")
+%Plot
+figure; 
+plot(toplot.Tvec,mean(data,2),'k');
+xline(toplot.Stimvec)
+xlabel('Time (seconds)','Interpreter','latex');
+ylabel({'Signal','Average over all voxels'},'Interpreter','latex')
+title('0.1Hz Stimulation','Interpreter','latex')
+print(gcf,['SubjectP1_10sPeriodStim_Run3'],'-depsc2','-r0')
+saveas(gcf,['SubjectP1_10sPeriodStim_Run3.png']);
 
 
 
