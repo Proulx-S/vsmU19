@@ -5,18 +5,20 @@
 
 %% Load data
 clear; clc; close all;
-cd('Y:\DataAnalysis\MRI\Human240904\13685568');
-dataDir = fullfile(pwd,'datav2');
+% cd('Y:\DataAnalysis\MRI\Human240904\13685568');
+cd('/autofs/space/takoyaki_001/users/proulxs/vsmU19');
+dataDir = fullfile(pwd,'data','bloodfest2024human');
 dataFile = 'vsmDrivenP1.mat';
 % dataFile = 'vsmDrivenP2.mat';
 disp(['processing ',dataFile]);
 subj = extractBetween(dataFile,'Driven','.mat');
-subj = subj{1};
+subj = char(subj);
 load(fullfile(dataDir,dataFile))
 %% Analyze
 trials = fields(vfMRI);
-% for trial = 9:length(trials)
-for trial = 4:4
+hAll = {};
+for trial = 1:length(trials)
+% for trial = 1:1
     toplot = struct(); %Structure to save results
     toplot.trial = trial;
     SVD_Q = 1; %Perform space-time SVD before line-spec?
@@ -53,7 +55,10 @@ for trial = 4:4
         catch ME
         end
         %Stim frequency
-        stimT = str2double(extractBefore(vfMRI_tmp.dsgn.label,'s'));
+        % stimT = str2double(extractBefore(vfMRI_tmp.dsgn.label,'s'));
+        %%%%%% stimT not exactly 10-15-20...
+        stimT = mean(diff(vfMRI_tmp.dsgn.onsetList'));
+        %%%%%%
         stimFreq = 1/stimT; % Hz
 
         toplot.Fs = Fs;
@@ -69,12 +74,14 @@ for trial = 4:4
         % ylabel('Difference between acquisition frames','Interpreter','latex');
 
         %SUBTRACT MEAN FROM TIMESERIES
-        [data_mean] = fun_MeanSubtract(data);
+        % [data_mean] = fun_MeanSubtract(data);
+        data_mean = data - mean(data,2);
 
         if SVD_Q == 1
             [U,S,V]=svd(data_mean,0);
             % figure('WindowStyle','docked');
-            h.mainfig = figure();
+            h.mainfig = figure('WindowStyle','docked');
+            h.mainfig.Name = [vfMRI_tmp.label '; run' num2str(run) '/' num2str(length(vfMRI_tmp.volTs))];
             h.tabgroup = uitabgroup;
             h.tab(1) = uitab(h.tabgroup,'Title','S-T SVD Sing. Values');
             h.axes(1) = axes('Parent',h.tab(1));
@@ -114,6 +121,7 @@ for trial = 4:4
                 mode1 = NaN(size(tmp_mask));
                 mode1(find_mask) = U(:,ii);
                 % figure;
+                figure(h.mainfig)
                 h.tab(ii+2) = uitab(h.tabgroup,'Title',sprintf('M%.0f',ii));
                 h.axes(ii+2) = axes('Parent',h.tab(ii+2));
                 subplot(2,1,1);
@@ -155,7 +163,8 @@ for trial = 4:4
             %% Perform Spectral FFT
             % Update half-bandwidth according to the rounded p value
             Delta_f = p * Fs / num_frame;
-            addpath(genpath('C:\chronux_2_12'))
+            % addpath(genpath('C:\chronux_2_12'))
+            addpath(genpath('/space/takoyaki/1/users/proulxs/tools/chronux/chronux_2_12/orig/chronux_2_12'))
             ntapers = [(num_tapers+1)/2,num_tapers];
             % Fs = toplot.rate;
             nfft = num_frame_pad;
@@ -191,6 +200,8 @@ for trial = 4:4
             h.tab(10) = uitab(h.tabgroup,'Title','AvgSpec');
             h.axes(10) = axes('Parent',h.tab(10));
             plot(f, log10(mean(S_tot, 1)),'k');
+            xline(stimFreq,'r')
+            grid on; grid minor;
             xlabel('Frequency (Hz)','Interpreter','latex');
             ylabel('log10(Power)','Interpreter','latex');
             title({'Average and Residual Spectrum across all pixels',['Half BW = ',num2str(round(Delta_f,4))]},'Interpreter','latex');
@@ -209,11 +220,12 @@ for trial = 4:4
             end
             toplot.coherence = coherence'; %Spatial coherence
             toc;
-            % yyaxis right
-            % plot(f,coherence,'b')
-            % ylim([0 1]);
-            % ylabel('Spatial Coherence','Interpreter','latex','Color','b')
-            % set(gca,'YColor',[0 0 1]);
+            yyaxis right
+            plot(f,coherence,'b')
+            ylim([0 1]);
+            ylabel('Spatial Coherence','Interpreter','latex','Color','b')
+            set(gca,'YColor',[0 0 1]);
+            yyaxis left
 
             %% CALCULATE LINE SPECTRA
             tapers_FT = fft(tapers,nfft)/Fs;
@@ -270,7 +282,7 @@ for trial = 4:4
             % CALCULATE F-STATISTICS
             N = length(Tvec);
             p = 0.05; % Significance level for f-test
-            p= p/length(Tvec); 
+            p= p/length(Tvec); % ??? WHY DIVIDE p BY length(Tvec), Bonferroni ???
             sig=finv(1-p,2,2*ntapers(2)-2);
             toplot.F_stat_sig = sig;
             disp(['Calculating F-Statistics at significance level ',num2str(p),' F_sig = ',num2str(sig)])
@@ -372,14 +384,21 @@ for trial = 4:4
 
         end
 
+        h.tabgroup.SelectedTab = h.tab(end-1);
+        hAll{end+1} = h;
+
+        % 
         % Save this trial's results. Just do this by trial for now.
-        cd('Y:\DataAnalysis\MRI\Human240904\13685568\results_025HzHalfBW_v2');
+        outDir = fullfile(dataDir,'res');
+        if ~exist(outDir,'dir'); mkdir(outDir); end
+        % cd('Y:\DataAnalysis\MRI\Human240904\13685568\results_025HzHalfBW_v2');
         figname = [subj,'_',trialName,'_run',num2str(run),'.fig'];
-        savefig(gcf,figname);
-        close all
+        savefig(gcf,fullfile(outDir,figname));
+        % close all
         %Save toplot .mat file for summary figures.
         matname = [subj,'_',trialName,'_run',num2str(run),'_toplot.mat'];
-        save(matname,'toplot');
+        save(fullfile(outDir,matname),'toplot');
+
     end
 end
 

@@ -3,7 +3,10 @@
 %Plot summary figures from analysis in fmri_linespec_JD.m
 
 clear; clc; close all;
-cd('Y:\DataAnalysis\MRI\Human240904\13685568\results_025HzHalfBW');
+dataDir = fullfile(pwd,'data','bloodfest2024human');
+outDir = fullfile(dataDir,'res');
+cd(outDir)
+% cd('Y:\DataAnalysis\MRI\Human240904\13685568\results_025HzHalfBW');
 
 %% Plot Average Spectrum Power for each trial as fxn of stim freq
 % Same as fxn of prox to "vaso" freq (in 50s stim trials).
@@ -12,6 +15,7 @@ cd('Y:\DataAnalysis\MRI\Human240904\13685568\results_025HzHalfBW');
 files_10s = dir('*10s*toplot.mat');
 meanpwr10s = [];
 meanLinePwr10s = [];
+nVox10s = [];
 for i = 1:length(files_10s)
     clearvars toplot
     load(files_10s(i).name);
@@ -21,12 +25,14 @@ for i = 1:length(files_10s)
     meanpwr10s = [meanpwr10s;toplot.meanpwr_vals(1)];
     %Get line amplitudes:
     sigAmps_tmp = toplot.sig_Amps;
+    nVox10s = [nVox10s nnz(~isnan(sigAmps_tmp(:,1)))];
     meanLinePwr10s = [meanLinePwr10s;sum(sigAmps_tmp(:,1),'omitnan')/size(sigAmps_tmp,1)];
 end
 % 15s
 files_15s = dir('*15s*toplot.mat');
 meanpwr15s = [];
 meanLinePwr15s = [];
+nVox15s = [];
 for i = 1:length(files_15s)
     clearvars toplot
     load(files_15s(i).name);
@@ -36,12 +42,14 @@ for i = 1:length(files_15s)
     meanpwr15s = [meanpwr15s;toplot.meanpwr_vals(1)];
     %Get line amplitudes:
     sigAmps_tmp = toplot.sig_Amps;
+    nVox15s = [nVox15s nnz(~isnan(sigAmps_tmp(:,1)))];
     meanLinePwr15s = [meanLinePwr15s;sum(sigAmps_tmp(:,1),'omitnan')/size(sigAmps_tmp,1)];
 end
 % 20s
 files_20s = dir('*20s*toplot.mat');
 meanpwr20s = [];
 meanLinePwr20s = [];
+nVox20s = [];
 for i = 1:length(files_20s)
     clearvars toplot
     load(files_20s(i).name);
@@ -51,6 +59,7 @@ for i = 1:length(files_20s)
     meanpwr20s = [meanpwr20s;toplot.meanpwr_vals(1)];
     %Get line amplitudes:
     sigAmps_tmp = toplot.sig_Amps;
+    nVox20s = [nVox20s nnz(~isnan(sigAmps_tmp(:,1)))];
     meanLinePwr20s = [meanLinePwr20s;sum(sigAmps_tmp(:,1),'omitnan')/size(sigAmps_tmp,1)];
 end
 
@@ -72,8 +81,10 @@ for i = 1:length(files_50s)
 end
 
 %% Plot summary figure: Average Spectrum Power for each trial as fxn of stim freq
-
-cd('Y:\DataAnalysis\MRI\Human240904\13685568\results_025HzHalfBW\Summary');
+outDir2 = fullfile(outDir,'Summary');
+if ~exist(outDir2,'dir'); mkdir(outDir2); end
+cd(outDir2)
+% cd('Y:\DataAnalysis\MRI\Human240904\13685568\results_025HzHalfBW\Summary');
 
 xdata1 = repmat(f_stim10s(1),[size(meanpwr10s,1),1]);
 xdata2 = repmat(f_stim15s(1),[size(meanpwr15s,1),1]);
@@ -82,7 +93,9 @@ xdata = [xdata1;xdata2;xdata3];
 
 ydata = [meanpwr10s;meanpwr15s;meanpwr20s];
 y_mean = [mean(meanpwr10s),mean(meanpwr15s),mean(meanpwr20s)];
-x_mean = [1/10,1/15,1/20];
+
+% x_mean = [1/10,1/15,1/20];
+x_mean = [f_stim10s(1), f_stim15s(1), f_stim20s(1)];
 y_meanPlusStd = y_mean + [std(meanpwr10s),std(meanpwr15s),std(meanpwr20s)];
 y_meanMinusStd = y_mean - [std(meanpwr10s),std(meanpwr15s),std(meanpwr20s)];
 errUP = log10(y_meanPlusStd) - log10(y_mean);
@@ -106,8 +119,8 @@ hold on
 scatter(x_mean,log10(y_mean),'filled','Marker','_','MarkerFaceAlpha',1,'MarkerFaceColor','k','MarkerEdgeColor','k','LineWidth',2);
 erbar = errorbar(x_mean,log10(y_mean),errDOWN,errUP);
 erbar.Color = 'k';
-savefig('PowerAtStimFreq_MeanSD.fig');
-saveas(gcf,'PowerAtStimFreq_MeanSD.png');
+% savefig('PowerAtStimFreq_MeanSD.fig');
+% saveas(gcf,'PowerAtStimFreq_MeanSD.png');
 %.eps
 figure;
 scatter(xdata,log10(ydata),'filled','MarkerFaceAlpha',1)
@@ -122,7 +135,7 @@ hold on
 scatter(x_mean,log10(y_mean),'filled','Marker','_','MarkerFaceAlpha',1,'MarkerFaceColor','k','MarkerEdgeColor','k','LineWidth',2);
 erbar = errorbar(x_mean,log10(y_mean),errDOWN,errUP);
 erbar.Color = 'k';
-print(gcf,'PowerAtStimFreq_MeanSD','-depsc2','-r0')
+% print(gcf,'PowerAtStimFreq_MeanSD','-depsc2','-r0')
 
 %SE
 figure;
@@ -138,8 +151,8 @@ hold on
 scatter(x_mean,log10(y_mean),'filled','Marker','_','MarkerFaceAlpha',1,'MarkerFaceColor','k','MarkerEdgeColor','k','LineWidth',2);
 erbar = errorbar(x_mean,log10(y_mean),errDOWNSE,errUPSE);
 erbar.Color = 'k';
-savefig('PowerAtStimFreq_MeanSE.fig');
-saveas(gcf,'PowerAtStimFreq_MeanSE.png');
+% savefig('PowerAtStimFreq_MeanSE.fig');
+% saveas(gcf,'PowerAtStimFreq_MeanSE.png');
 %.eps
 figure;
 scatter(xdata,log10(ydata),'filled','MarkerFaceAlpha',1)
@@ -154,7 +167,7 @@ hold on
 scatter(x_mean,log10(y_mean),'filled','Marker','_','MarkerFaceAlpha',1,'MarkerFaceColor','k','MarkerEdgeColor','k','LineWidth',2);
 erbar = errorbar(x_mean,log10(y_mean),errDOWNSE,errUPSE);
 erbar.Color = 'k';
-print(gcf,'PowerAtStimFreq_MeanSE','-depsc2','-r0');
+% print(gcf,'PowerAtStimFreq_MeanSE','-depsc2','-r0');
 
 %% PLOT AND SAVE AVERAGE POWER VS PROX TO 50s Peak FREQUENCY
 vasofreq = mean(vasopk);
@@ -172,8 +185,8 @@ scatter(x_mean - vasofreq,log10(y_mean),'filled','Marker','_','MarkerFaceAlpha',
 erbar = errorbar(x_mean - vasofreq,log10(y_mean),errDOWN,errUP);
 erbar.Color = 'k';
 fig.Position = [680 508 682 490];
-savefig('PowerAtStimFreq_VasoProx_MeanSD.fig');
-saveas(gcf,'PowerAtStimFreq_VasoProx_MeanSD.png');
+% savefig('PowerAtStimFreq_VasoProx_MeanSD.fig');
+% saveas(gcf,'PowerAtStimFreq_VasoProx_MeanSD.png');
 %.eps
 fig = figure;
 scatter(xdata - vasofreq,log10(ydata),'filled','MarkerFaceAlpha',1)
@@ -189,7 +202,7 @@ scatter(x_mean - vasofreq,log10(y_mean),'filled','Marker','_','MarkerFaceAlpha',
 erbar = errorbar(x_mean - vasofreq,log10(y_mean),errDOWN,errUP);
 erbar.Color = 'k';
 fig.Position = [680 508 682 490];
-print(gcf,'PowerAtStimFreq_VasoProx_MeanSD','-depsc2','-r0')
+% print(gcf,'PowerAtStimFreq_VasoProx_MeanSD','-depsc2','-r0')
 
 %SE
 fig = figure;
@@ -206,8 +219,8 @@ scatter(x_mean - vasofreq,log10(y_mean),'filled','Marker','_','MarkerFaceAlpha',
 erbar = errorbar(x_mean - vasofreq,log10(y_mean),errDOWNSE,errUPSE);
 erbar.Color = 'k';
 fig.Position = [680 508 682 490];
-savefig('PowerAtStimFreq_VasoProx_MeanSE.fig');
-saveas(gcf,'PowerAtStimFreq_VasoProx_MeanSE.png');
+% savefig('PowerAtStimFreq_VasoProx_MeanSE.fig');
+% saveas(gcf,'PowerAtStimFreq_VasoProx_MeanSE.png');
 %.eps
 fig = figure;
 scatter(xdata - vasofreq,log10(ydata),'filled','MarkerFaceAlpha',1)
@@ -223,10 +236,14 @@ scatter(x_mean - vasofreq,log10(y_mean),'filled','Marker','_','MarkerFaceAlpha',
 erbar = errorbar(x_mean - vasofreq,log10(y_mean),errDOWNSE,errUPSE);
 erbar.Color = 'k';
 fig.Position = [680 508 682 490];
-print(gcf,'PowerAtStimFreq_VasoProx_MeanSE','-depsc2','-r0');
+% print(gcf,'PowerAtStimFreq_VasoProx_MeanSE','-depsc2','-r0');
 
 %% DO THE SAME FOR THE LINE AMPLITUDE
-cd('Y:\DataAnalysis\MRI\Human240904\13685568\results_025HzHalfBW\Summary');
+% cd('Y:\DataAnalysis\MRI\Human240904\13685568\results_025HzHalfBW\Summary');
+outDir2 = fullfile(outDir,'Summary');
+if ~exist(outDir2,'dir'); mkdir(outDir2); end
+cd(outDir2)
+
 
 xdata1 = repmat(f_stim10s(1),[size(meanLinePwr10s,1),1]);
 xdata2 = repmat(f_stim15s(1),[size(meanLinePwr15s,1),1]);
@@ -253,7 +270,8 @@ figure;
 scatter(xdata,(ydata),'filled','MarkerFaceAlpha',0.3)
 xlim([0 0.15]);
 xlabel('Stimulation Frequency (Hz)','Interpreter','latex');
-ylabel({'Line Power at Stimulation Frequency','Average Over All Vessel Voxels'},'Interpreter','latex')
+ylabel({'Line Power at Stimulation Frequency','Average Over All Vessel (SIGNIFICANT) Voxels'},'Interpreter','latex')
+% ylabel({'Line Power at Stimulation Frequency','Average Over All Vessel Voxels'},'Interpreter','latex')
 ax = gca;
 ax.TickLabelInterpreter = 'latex';
 ax.FontSize = 13;
@@ -262,14 +280,15 @@ hold on
 scatter(x_mean,(y_mean),'filled','Marker','_','MarkerFaceAlpha',1,'MarkerFaceColor','k','MarkerEdgeColor','k','LineWidth',2);
 erbar = errorbar(x_mean,(y_mean),errDOWN,errUP);
 erbar.Color = 'k';
-savefig('LinePowerAtStimFreq_MeanSD.fig');
-saveas(gcf,'LinePowerAtStimFreq_MeanSD.png');
+% savefig('LinePowerAtStimFreq_MeanSD.fig');
+% saveas(gcf,'LinePowerAtStimFreq_MeanSD.png');
 %.eps
 figure;
 scatter(xdata,(ydata),'filled','MarkerFaceAlpha',1)
 xlim([0 0.15]);
 xlabel('Stimulation Frequency (Hz)','Interpreter','latex');
 ylabel({'Line Power at Stimulation Frequency','Average Over All Vessel Voxels'},'Interpreter','latex')
+ylabel({'Line Power at Stimulation Frequency','Average Over All Vessel (SIGNIFICANT) Voxels'},'Interpreter','latex')
 ax = gca;
 ax.TickLabelInterpreter = 'latex';
 ax.FontSize = 13;
@@ -278,14 +297,15 @@ hold on
 scatter(x_mean,(y_mean),'filled','Marker','_','MarkerFaceAlpha',1,'MarkerFaceColor','k','MarkerEdgeColor','k','LineWidth',2);
 erbar = errorbar(x_mean,(y_mean),errDOWN,errUP);
 erbar.Color = 'k';
-print(gcf,'LinePowerAtStimFreq_MeanSD','-depsc2','-r0')
+% print(gcf,'LinePowerAtStimFreq_MeanSD','-depsc2','-r0')
 
 %SE
 figure;
 scatter(xdata,(ydata),'filled','MarkerFaceAlpha',0.3)
 xlim([0 0.15]);
 xlabel('Stimulation Frequency (Hz)','Interpreter','latex');
-ylabel({'Line Power at Stimulation Frequency','Average Over All Vessel Voxels'},'Interpreter','latex')
+% ylabel({'Line Power at Stimulation Frequency','Average Over All Vessel Voxels'},'Interpreter','latex')
+ylabel({'Line Power at Stimulation Frequency','Average Over All Vessel (SIGNIFICANT) Voxels'},'Interpreter','latex')
 ax = gca;
 ax.TickLabelInterpreter = 'latex';
 ax.FontSize = 13;
@@ -294,14 +314,15 @@ hold on
 scatter(x_mean,(y_mean),'filled','Marker','_','MarkerFaceAlpha',1,'MarkerFaceColor','k','MarkerEdgeColor','k','LineWidth',2);
 erbar = errorbar(x_mean,(y_mean),errDOWNSE,errUPSE);
 erbar.Color = 'k';
-savefig('LinePowerAtStimFreq_MeanSE.fig');
-saveas(gcf,'LinePowerAtStimFreq_MeanSE.png');
+% savefig('LinePowerAtStimFreq_MeanSE.fig');
+% saveas(gcf,'LinePowerAtStimFreq_MeanSE.png');
 %.eps
 figure;
 scatter(xdata,(ydata),'filled','MarkerFaceAlpha',1)
 xlim([0 0.15]);
 xlabel('Stimulation Frequency (Hz)','Interpreter','latex');
-ylabel({'Line Power at Stimulation Frequency','Average Over All Vessel Voxels'},'Interpreter','latex')
+% ylabel({'Line Power at Stimulation Frequency','Average Over All Vessel Voxels'},'Interpreter','latex')
+ylabel({'Line Power at Stimulation Frequency','Average Over All Vessel (SIGNIFICANT) Voxels'},'Interpreter','latex')
 ax = gca;
 ax.TickLabelInterpreter = 'latex';
 ax.FontSize = 13;
@@ -310,7 +331,7 @@ hold on
 scatter(x_mean,(y_mean),'filled','Marker','_','MarkerFaceAlpha',1,'MarkerFaceColor','k','MarkerEdgeColor','k','LineWidth',2);
 erbar = errorbar(x_mean,(y_mean),errDOWNSE,errUPSE);
 erbar.Color = 'k';
-print(gcf,'LinePowerAtStimFreq_MeanSE','-depsc2','-r0');
+% print(gcf,'LinePowerAtStimFreq_MeanSE','-depsc2','-r0');
 
 
 
@@ -329,7 +350,8 @@ print(gcf,'LinePowerAtStimFreq_MeanSE','-depsc2','-r0');
 
 %% Plot all significant line amplitudes - including harmonics.
 clear; clc; close all;
-cd('Y:\DataAnalysis\MRI\Human240904\13685568\results_025HzHalfBW_v2');
+% cd('Y:\DataAnalysis\MRI\Human240904\13685568\results_025HzHalfBW_v2');
+cd ..
 
 %% Plot Average Spectrum Power for each trial as fxn of stim freq
 % Same as fxn of prox to "vaso" freq (in 50s stim trials).
@@ -436,20 +458,21 @@ for i = 1:length(files_20s)
     meanLinePwr20s = [meanLinePwr20s;sum(sigAmps_tmp,1,'omitnan')/size(sigAmps_tmp,1)];
     hasNoSigLines20s = [hasNoSigLines20s;sum(isnan(sigAmps_tmp),1)==size(sigAmps_tmp,1)];
 end
-%ADD 50s PERIOD TRIALS!!!
-cd('Y:\DataAnalysis\MRI\Human240904\13685568\results_01HzHalfBW_50sPeriod');
-% 50s P1 P2
-[meanpwr50s,meanLinePwr50s,hasNoSigLines50s,f_stim50s] = fun_getExperimentFiles('50s');
+% % % %ADD 50s PERIOD TRIALS!!!
+% % % cd('Y:\DataAnalysis\MRI\Human240904\13685568\results_01HzHalfBW_50sPeriod');
+% % % % 50s P1 P2
+% % % [meanpwr50s,meanLinePwr50s,hasNoSigLines50s,f_stim50s] = fun_getExperimentFiles('50s');
 
 %% PLOT ALL DATA INCLUDING HARMONIC LINE AMPLITUDES
-cd('Y:\DataAnalysis\MRI\Human240904\13685568\results_025HzHalfBW_v2\Summary');
+% cd('Y:\DataAnalysis\MRI\Human240904\13685568\results_025HzHalfBW_v2\Summary');
+cd(fullfile(pwd,'Summary'))
 
 xdata1 = repmat(f_stim10s,[size(meanLinePwr10s,1),1]);
 xdata2 = repmat(f_stim15s,[size(meanLinePwr15s,1),1]);
 xdata3 = repmat(f_stim20s,[size(meanLinePwr20s,1),1]);
-xdata4 = repmat(f_stim5s,[size(meanLinePwr5s,1),1]);
-xdata5 = repmat(f_stim6s,[size(meanLinePwr6s,1),1]);
-xdata6 = repmat(f_stim8s,[size(meanLinePwr8s,1),1]);
+% xdata4 = repmat(f_stim5s,[size(meanLinePwr5s,1),1]);
+% xdata5 = repmat(f_stim6s,[size(meanLinePwr6s,1),1]);
+% xdata6 = repmat(f_stim8s,[size(meanLinePwr8s,1),1]);
 % xdata7 = repmat(f_stim50s,[size(meanLinePwr50s,1),1]);
 %Delete entries where there were no significant lines detected.
 todel = find(hasNoSigLines10s);
@@ -472,68 +495,75 @@ figure;
 scatter(xdata1,meanLinePwr10s,'filled','MarkerFaceAlpha',0.2,'MarkerFaceColor','b'); hold on;
 scatter(xdata2,meanLinePwr15s,'filled','MarkerFaceAlpha',0.2,'MarkerFaceColor','b'); 
 scatter(xdata3,meanLinePwr20s,'filled','MarkerFaceAlpha',0.2,'MarkerFaceColor','b');
-scatter(xdata4,meanLinePwr5s,'filled','MarkerFaceAlpha',0.2,'MarkerFaceColor','b');
-scatter(xdata5,meanLinePwr6s,'filled','MarkerFaceAlpha',0.2,'MarkerFaceColor','b');
-scatter(xdata6,meanLinePwr8s,'filled','MarkerFaceAlpha',0.2,'MarkerFaceColor','b');
-% scatter(xdata7,meanLinePwr50s,'filled','MarkerFaceAlpha',0.2,'MarkerFaceColor','b');
-numtrials = size(meanLinePwr20s,1)+size(meanLinePwr15s,1)+size(meanLinePwr10s,1)+size(meanLinePwr8s,1)+size(meanLinePwr6s,1)+size(meanLinePwr5s,1);
+% scatter(xdata4,meanLinePwr5s,'filled','MarkerFaceAlpha',0.2,'MarkerFaceColor','b');
+% scatter(xdata5,meanLinePwr6s,'filled','MarkerFaceAlpha',0.2,'MarkerFaceColor','b');
+% scatter(xdata6,meanLinePwr8s,'filled','MarkerFaceAlpha',0.2,'MarkerFaceColor','b');
+% % scatter(xdata7,meanLinePwr50s,'filled','MarkerFaceAlpha',0.2,'MarkerFaceColor','b');
+% numtrials = size(meanLinePwr20s,1)+size(meanLinePwr15s,1)+size(meanLinePwr10s,1)+size(meanLinePwr8s,1)+size(meanLinePwr6s,1)+size(meanLinePwr5s,1);
+numtrials = size(meanLinePwr20s,1)+size(meanLinePwr15s,1)+size(meanLinePwr10s,1);
 xlim([0 0.6]);
 xlabel('Stimulation Frequency (Hz)','Interpreter','latex');
-ylabel({'Significant Line Power','Average Over All Vessel Voxels'},'Interpreter','latex')
+% ylabel({'Significant Line Power','Average Over All Vessel Voxels'},'Interpreter','latex')
+ylabel({'Significant Line Power','Average Over All Vessel (SIGNIFICANT) Voxels'},'Interpreter','latex')
 ax = gca;
 ax.TickLabelInterpreter = 'latex';
 ax.FontSize = 13;
 title({'Line Power at Stimulation Frequency and Harmonics',sprintf('%.0f Runs, 2 Subjects',numtrials)},'Interpreter','latex');
-savefig('LinePowerAtStimFreq_Harmonics.fig');
-saveas(gcf,'LinePowerAtStimFreq_Harmonics.png');
+% savefig('LinePowerAtStimFreq_Harmonics.fig');
+% saveas(gcf,'LinePowerAtStimFreq_Harmonics.png');
 %.eps
 figure;
 scatter(xdata1,meanLinePwr10s,'filled','MarkerFaceAlpha',1,'MarkerFaceColor','b'); hold on;
 scatter(xdata2,meanLinePwr15s,'filled','MarkerFaceAlpha',1,'MarkerFaceColor','b'); 
 scatter(xdata3,meanLinePwr20s,'filled','MarkerFaceAlpha',1,'MarkerFaceColor','b');
-scatter(xdata4,meanLinePwr5s,'filled','MarkerFaceAlpha',1,'MarkerFaceColor','b');
-scatter(xdata5,meanLinePwr6s,'filled','MarkerFaceAlpha',1,'MarkerFaceColor','b');
-scatter(xdata6,meanLinePwr8s,'filled','MarkerFaceAlpha',1,'MarkerFaceColor','b');
-% scatter(xdata7,meanLinePwr50s,'filled','MarkerFaceAlpha',1,'MarkerFaceColor','b');
-numtrials = size(meanLinePwr20s,1)+size(meanLinePwr15s,1)+size(meanLinePwr10s,1)+size(meanLinePwr8s,1)+size(meanLinePwr6s,1)+size(meanLinePwr5s,1);
+% scatter(xdata4,meanLinePwr5s,'filled','MarkerFaceAlpha',1,'MarkerFaceColor','b');
+% scatter(xdata5,meanLinePwr6s,'filled','MarkerFaceAlpha',1,'MarkerFaceColor','b');
+% scatter(xdata6,meanLinePwr8s,'filled','MarkerFaceAlpha',1,'MarkerFaceColor','b');
+% % scatter(xdata7,meanLinePwr50s,'filled','MarkerFaceAlpha',1,'MarkerFaceColor','b');
+% numtrials = size(meanLinePwr20s,1)+size(meanLinePwr15s,1)+size(meanLinePwr10s,1)+size(meanLinePwr8s,1)+size(meanLinePwr6s,1)+size(meanLinePwr5s,1);
+numtrials = size(meanLinePwr20s,1)+size(meanLinePwr15s,1)+size(meanLinePwr10s,1);
 xlim([0 0.6]);
 xlabel('Stimulation Frequency (Hz)','Interpreter','latex');
-ylabel({'Significant Line Power','Average Over All Vessel Voxels'},'Interpreter','latex')
+% ylabel({'Significant Line Power','Average Over All Vessel Voxels'},'Interpreter','latex')
+ylabel({'Significant Line Power','Average Over All Vessel (SIGNIFICANT) Voxels'},'Interpreter','latex')
 ax = gca;
 ax.TickLabelInterpreter = 'latex';
 ax.FontSize = 13;
 title({'Line Power at Stimulation Frequency and Harmonics',sprintf('%.0f Runs, 2 Subjects',numtrials)},'Interpreter','latex');
-print(gcf,'LinePowerAtStimFreq_Harmonics','-depsc2','-r0')
+% print(gcf,'LinePowerAtStimFreq_Harmonics','-depsc2','-r0')
 %%
 %Plot on log scale
 figure;
 scatter(xdata1,log10(meanLinePwr10s),'filled','MarkerFaceAlpha',0.2,'MarkerFaceColor','b'); hold on;
 scatter(xdata2,log10(meanLinePwr15s),'filled','MarkerFaceAlpha',0.2,'MarkerFaceColor','b'); 
 scatter(xdata3,log10(meanLinePwr20s),'filled','MarkerFaceAlpha',0.2,'MarkerFaceColor','b');
-scatter(xdata4,log10(meanLinePwr5s),'filled','MarkerFaceAlpha',0.2,'MarkerFaceColor','b');
-scatter(xdata5,log10(meanLinePwr6s),'filled','MarkerFaceAlpha',0.2,'MarkerFaceColor','b');
-scatter(xdata6,log10(meanLinePwr8s),'filled','MarkerFaceAlpha',0.2,'MarkerFaceColor','b');
-% scatter(xdata7,log10(meanLinePwr50s),'filled','MarkerFaceAlpha',0.2,'MarkerFaceColor','b');
-numtrials = size(meanLinePwr20s,1)+size(meanLinePwr15s,1)+size(meanLinePwr10s,1)+size(meanLinePwr8s,1)+size(meanLinePwr6s,1)+size(meanLinePwr5s,1);
+% scatter(xdata4,log10(meanLinePwr5s),'filled','MarkerFaceAlpha',0.2,'MarkerFaceColor','b');
+% scatter(xdata5,log10(meanLinePwr6s),'filled','MarkerFaceAlpha',0.2,'MarkerFaceColor','b');
+% scatter(xdata6,log10(meanLinePwr8s),'filled','MarkerFaceAlpha',0.2,'MarkerFaceColor','b');
+% % scatter(xdata7,log10(meanLinePwr50s),'filled','MarkerFaceAlpha',0.2,'MarkerFaceColor','b');
+% numtrials = size(meanLinePwr20s,1)+size(meanLinePwr15s,1)+size(meanLinePwr10s,1)+size(meanLinePwr8s,1)+size(meanLinePwr6s,1)+size(meanLinePwr5s,1);
+numtrials = size(meanLinePwr20s,1)+size(meanLinePwr15s,1)+size(meanLinePwr10s,1);
 xlim([0 0.6]);
 xlabel('Stimulation Frequency (Hz)','Interpreter','latex');
-ylabel({'Log10 Significant Line Power','Average Over All Vessel Voxels'},'Interpreter','latex')
+% ylabel({'Log10 Significant Line Power','Average Over All Vessel Voxels'},'Interpreter','latex')
+ylabel({'Log10 Significant Line Power','Average Over All Vessel (SIGNIFICANT) Voxels'},'Interpreter','latex')
 ax = gca;
 ax.TickLabelInterpreter = 'latex';
 ax.FontSize = 13;
 title({'Line Power at Stimulation Frequency and Harmonics',sprintf('%.0f Runs, 2 Subjects',numtrials)},'Interpreter','latex');
-savefig('LinePowerAtStimFreq_Harmonics_Log10.fig');
-saveas(gcf,'LinePowerAtStimFreq_Harmonics_Log10.png');
+% savefig('LinePowerAtStimFreq_Harmonics_Log10.fig');
+% saveas(gcf,'LinePowerAtStimFreq_Harmonics_Log10.png');
 %.eps
 figure;
 scatter(xdata1,log10(meanLinePwr10s),'filled','MarkerFaceAlpha',1,'MarkerFaceColor','b'); hold on;
 scatter(xdata2,log10(meanLinePwr15s),'filled','MarkerFaceAlpha',1,'MarkerFaceColor','b'); 
 scatter(xdata3,log10(meanLinePwr20s),'filled','MarkerFaceAlpha',1,'MarkerFaceColor','b');
-scatter(xdata4,log10(meanLinePwr5s),'filled','MarkerFaceAlpha',1,'MarkerFaceColor','b');
-scatter(xdata5,log10(meanLinePwr6s),'filled','MarkerFaceAlpha',1,'MarkerFaceColor','b');
-scatter(xdata6,log10(meanLinePwr8s),'filled','MarkerFaceAlpha',1,'MarkerFaceColor','b');
-% scatter(xdata7,log10(meanLinePwr50s),'filled','MarkerFaceAlpha',1,'MarkerFaceColor','b');
-numtrials = size(meanLinePwr20s,1)+size(meanLinePwr15s,1)+size(meanLinePwr10s,1)+size(meanLinePwr8s,1)+size(meanLinePwr6s,1)+size(meanLinePwr5s,1);
+% scatter(xdata4,log10(meanLinePwr5s),'filled','MarkerFaceAlpha',1,'MarkerFaceColor','b');
+% scatter(xdata5,log10(meanLinePwr6s),'filled','MarkerFaceAlpha',1,'MarkerFaceColor','b');
+% scatter(xdata6,log10(meanLinePwr8s),'filled','MarkerFaceAlpha',1,'MarkerFaceColor','b');
+% % scatter(xdata7,log10(meanLinePwr50s),'filled','MarkerFaceAlpha',1,'MarkerFaceColor','b');
+% numtrials = size(meanLinePwr20s,1)+size(meanLinePwr15s,1)+size(meanLinePwr10s,1)+size(meanLinePwr8s,1)+size(meanLinePwr6s,1)+size(meanLinePwr5s,1);
+numtrials = size(meanLinePwr20s,1)+size(meanLinePwr15s,1)+size(meanLinePwr10s,1);
 xlim([0 0.6]);
 xlabel('Stimulation Frequency (Hz)','Interpreter','latex');
 ylabel({'Log10 Significant Line Power','Average Over All Vessel Voxels'},'Interpreter','latex')
@@ -541,7 +571,7 @@ ax = gca;
 ax.TickLabelInterpreter = 'latex';
 ax.FontSize = 13;
 title({'Line Power at Stimulation Frequency and Harmonics',sprintf('%.0f Runs, 2 Subjects',numtrials)},'Interpreter','latex');
-savefig('LinePowerAtStimFreq_Harmonics_Log10.fig');
+% savefig('LinePowerAtStimFreq_Harmonics_Log10.fig');
 %% Spline fit!
 xtmp = [xdata1(~isnan(xdata1));xdata2(~isnan(xdata2));xdata3(~isnan(xdata3));...
     xdata4(~isnan(xdata4));xdata5(~isnan(xdata5));xdata6(~isnan(xdata6))];
@@ -563,8 +593,8 @@ ax = gca;
 ax.TickLabelInterpreter = 'latex';
 ax.FontSize = 13;
 title({'Line Power at Stimulation Frequency and Harmonics',sprintf('%.0f Runs, 2 Subjects',numtrials),'15 Point Median 25th 75th percentile'},'Interpreter','latex');
-savefig('LinePowerAtStimFreq_Harmonics_15ptMovMedian.fig');
-saveas(gcf,'LinePowerAtStimFreq_Harmonics_15ptMovMedian.png');
+% savefig('LinePowerAtStimFreq_Harmonics_15ptMovMedian.fig');
+% saveas(gcf,'LinePowerAtStimFreq_Harmonics_15ptMovMedian.png');
 %.eps
 figure; scatter(xtmp,ytmp,'filled','MarkerFaceAlpha',1)
 hold on
@@ -577,7 +607,7 @@ ax = gca;
 ax.TickLabelInterpreter = 'latex';
 ax.FontSize = 13;
 title({'Line Power at Stimulation Frequency and Harmonics',sprintf('%.0f Runs, 2 Subjects',numtrials),'15 Point Median 25th 75th percentile'},'Interpreter','latex');
-print(gcf,'LinePowerAtStimFreq_Harmonics_15ptMovMedian','-depsc2','-r0')
+% print(gcf,'LinePowerAtStimFreq_Harmonics_15ptMovMedian','-depsc2','-r0')
 %% LOG SCALE
 figure; scatter(xtmp,log10(ytmp),'filled','MarkerFaceAlpha',0.2)
 hold on
@@ -590,8 +620,8 @@ ax = gca;
 ax.TickLabelInterpreter = 'latex';
 ax.FontSize = 13;
 title({'Line Power at Stimulation Frequency and Harmonics',sprintf('%.0f Runs, 2 Subjects',numtrials),'15 Point Median 25th 75th percentile'},'Interpreter','latex');
-savefig('LinePowerAtStimFreq_Harmonics_log10_15ptMovMedian.fig');
-saveas(gcf,'LinePowerAtStimFreq_Harmonics_log10_15ptMovMedian.png');
+% savefig('LinePowerAtStimFreq_Harmonics_log10_15ptMovMedian.fig');
+% saveas(gcf,'LinePowerAtStimFreq_Harmonics_log10_15ptMovMedian.png');
 %.eps
 figure; scatter(xtmp,log10(ytmp),'filled','MarkerFaceAlpha',1)
 hold on
@@ -604,7 +634,7 @@ ax = gca;
 ax.TickLabelInterpreter = 'latex';
 ax.FontSize = 13;
 title({'Line Power at Stimulation Frequency and Harmonics',sprintf('%.0f Runs, 2 Subjects',numtrials),'15 Point Median 25th 75th percentile'},'Interpreter','latex');
-print(gcf,'LinePowerAtStimFreq_Harmonics_log10_15ptMovMedian','-depsc2','-r0')
+% print(gcf,'LinePowerAtStimFreq_Harmonics_log10_15ptMovMedian','-depsc2','-r0')
 
 %% SPLINE fits
 mtd = 'median';
@@ -690,8 +720,8 @@ ax = gca;
 ax.TickLabelInterpreter = 'latex';
 ax.FontSize = 13;
 title({'Line Power at Stimulation Frequency and Harmonics',sprintf('%.0f Runs, 2 Subjects',numtrials),'15 Point Median 25th 75th percentile'},'Interpreter','latex');
-savefig('LinePowerAtStimFreq_Harmonics_15ptMovMedian_Spline.fig');
-saveas(gcf,'LinePowerAtStimFreq_Harmonics_15ptMovMedian_Spline.png');
+% savefig('LinePowerAtStimFreq_Harmonics_15ptMovMedian_Spline.fig');
+% saveas(gcf,'LinePowerAtStimFreq_Harmonics_15ptMovMedian_Spline.png');
 %.eps
 figure; scatter(xtmp,ytmp,'filled','MarkerFaceAlpha',1)
 hold on;
@@ -705,7 +735,7 @@ ax = gca;
 ax.TickLabelInterpreter = 'latex';
 ax.FontSize = 13;
 title({'Line Power at Stimulation Frequency and Harmonics',sprintf('%.0f Runs, 2 Subjects',numtrials),'15 Point Median 25th 75th percentile'},'Interpreter','latex');
-print(gcf,'LinePowerAtStimFreq_Harmonics_15ptMovMedian_Spline','-depsc2','-r0')
+% print(gcf,'LinePowerAtStimFreq_Harmonics_15ptMovMedian_Spline','-depsc2','-r0')
 %LOG SCALE
 figure; scatter(xtmp,log10(ytmp),'filled','MarkerFaceAlpha',0.2)
 hold on;
@@ -720,8 +750,8 @@ ax = gca;
 ax.TickLabelInterpreter = 'latex';
 ax.FontSize = 13;
 title({'Line Power at Stimulation Frequency and Harmonics',sprintf('%.0f Runs, 2 Subjects',numtrials),'15 Point Median 25th 75th percentile'},'Interpreter','latex');
-savefig('LinePowerAtStimFreq_Harmonics_log10_15ptMovMedian_Spline.fig');
-saveas(gcf,'LinePowerAtStimFreq_Harmonics_log10_15ptMovMedian_Spline.png');
+% savefig('LinePowerAtStimFreq_Harmonics_log10_15ptMovMedian_Spline.fig');
+% saveas(gcf,'LinePowerAtStimFreq_Harmonics_log10_15ptMovMedian_Spline.png');
 %.eps
 figure; scatter(xtmp,log10(ytmp),'filled','MarkerFaceAlpha',1)
 hold on;
@@ -735,7 +765,7 @@ ax = gca;
 ax.TickLabelInterpreter = 'latex';
 ax.FontSize = 13;
 title({'Line Power at Stimulation Frequency and Harmonics',sprintf('%.0f Runs, 2 Subjects',numtrials),'15 Point Median 25th 75th percentile'},'Interpreter','latex');
-print(gcf,'LinePowerAtStimFreq_Harmonics_log10_15ptMovMedian_Spline','-depsc2','-r0')
+% print(gcf,'LinePowerAtStimFreq_Harmonics_log10_15ptMovMedian_Spline','-depsc2','-r0')
 
 
 %% Example spectra
@@ -749,9 +779,9 @@ ylabel('log10 Power','Interpreter','latex');
 ax = gca;
 ax.TickLabelInterpreter = 'latex';
 ax.FontSize = 12;
-title({'Resting-State Spectrum Half-BW = 0.025','Average over voxels'},'Interpreter','latex');
-print(gcf,'SubjectP1_RestingStateSpectrum_BW025','-depsc2','-r0')
-saveas(gcf,'SubjectP1_RestingStateSpectrum_BW025.png');
+title({'Resting-State Spectrum Half-BW = 0.03','Average over voxels'},'Interpreter','latex');
+% print(gcf,'SubjectP1_RestingStateSpectrum','-depsc2','-r0')
+% saveas(gcf,'SubjectP1_RestingStateSpectrum.png');
 
 %Stim Trial Examples
 clear; clc; close all;
@@ -767,8 +797,8 @@ ax.TickLabelInterpreter = 'latex';
 ax.FontSize = 12;
 legend({'Average Spectrum','Residual Spectrum'})
 title({'0.1Hz Visual Stimulation Spectrum Half-BW = 0.025','Average over voxels'},'Interpreter','latex');
-print(gcf,'SubjectP1_10sPeriodStim_run3_Spectrum','-depsc2','-r0')
-saveas(gcf,'SubjectP1_10sPeriodStim_run3_Spectrum.png');
+% print(gcf,'SubjectP1_10sPeriodStim_run3_Spectrum','-depsc2','-r0')
+% saveas(gcf,'SubjectP1_10sPeriodStim_run3_Spectrum.png');
 
 clear; clc; close all;
 load("Y:\DataAnalysis\MRI\Human240904\13685568\results_025HzHalfBW_v2\P1_task_15sPrd1sDur_run1_toplot.mat");
@@ -783,8 +813,8 @@ ax.TickLabelInterpreter = 'latex';
 ax.FontSize = 12;
 legend({'Average Spectrum','Residual Spectrum'})
 title({'0.07Hz Visual Stimulation Spectrum Half-BW = 0.025','Average over voxels'},'Interpreter','latex');
-print(gcf,'SubjectP1_15sPeriodStim_run1_Spectrum','-depsc2','-r0')
-saveas(gcf,'SubjectP1_15sPeriodStim_run1_Spectrum.png');
+% print(gcf,'SubjectP1_15sPeriodStim_run1_Spectrum','-depsc2','-r0')
+% saveas(gcf,'SubjectP1_15sPeriodStim_run1_Spectrum.png');
 
 clear; clc; close all;
 load("Y:\DataAnalysis\MRI\Human240904\13685568\results_025HzHalfBW_v2\P1_task_05sPrd1sDur_run2_toplot.mat");
@@ -799,8 +829,8 @@ ax.TickLabelInterpreter = 'latex';
 ax.FontSize = 12;
 legend({'Average Spectrum','Residual Spectrum'})
 title({'0.2Hz Visual Stimulation Spectrum Half-BW = 0.025','Average over voxels'},'Interpreter','latex');
-print(gcf,'SubjectP1_5sPeriodStim_run2_Spectrum','-depsc2','-r0')
-saveas(gcf,'SubjectP1_5sPeriodStim_run2_Spectrum.png');
+% print(gcf,'SubjectP1_5sPeriodStim_run2_Spectrum','-depsc2','-r0')
+% saveas(gcf,'SubjectP1_5sPeriodStim_run2_Spectrum.png');
 %%
 %Single-ovxel residual spectra
 clear; clc; close all;
@@ -978,8 +1008,8 @@ ax = gca;
 ax.TickLabelInterpreter = 'latex';
 ax.FontSize = 13;
 title({'Line Power at Stimulation Frequency and Harmonics',sprintf('%.0f Runs, 2 Subjects',numtrials)},'Interpreter','latex');
-savefig('LinePowerAtStimFreq_Harmonics.fig');
-saveas(gcf,'LinePowerAtStimFreq_Harmonics.png');
+% savefig('LinePowerAtStimFreq_Harmonics.fig');
+% saveas(gcf,'LinePowerAtStimFreq_Harmonics.png');
 
 
 

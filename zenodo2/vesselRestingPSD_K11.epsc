@@ -1,0 +1,242 @@
+%!PS-Adobe-3.0 EPSF-3.0
+%%Creator: (MATLAB, The MathWorks, Inc. Version 25.1.0.2973910 R2025a Update 1. Operating System: Linux 6.14.0-29-generic #29~24.04.1-Ubuntu SMP PREEMPT_DYNAMIC Thu Aug 14 16:52:50 UTC 2 x86_64)
+%%Title: ./vesselRestingPSD_K11.epsc
+%%CreationDate: 2025-10-05T15:24:18
+%%Pages: (atend)
+%%BoundingBox:    0     0   558   376
+%%LanguageLevel: 3
+%%EndComments
+/bd{bind def}bind def
+/ld{load def}bd
+/GR/grestore ld
+/GS/gsave ld
+/RM/rmoveto ld
+/C/curveto ld
+/t/show ld
+/L/lineto ld
+/RL/rlineto ld
+/ML/setmiterlimit ld
+/CT/concat ld
+/f/fill ld
+/N/newpath ld
+/S/stroke ld
+/CC/setcmykcolor ld
+/A/ashow ld
+/cp/closepath ld
+/RC/setrgbcolor ld
+/LJ/setlinejoin ld
+/GC/setgray ld
+/LW/setlinewidth ld
+/LC/setlinecap ld
+/LJ/setlinejoin ld
+/SD/setdash ld
+/M/moveto ld
+/TX/translate ld
+/R/rotate ld
+/SC/scale ld
+
+/CIRC {0 360 arc}bd
+/F {exch findfont exch scalefont setfont}bd
+/edef{ exch def } def
+/scaleImg{ % width height outputDPI scaleImg
+   /outputDPI edef
+   /height edef
+   /width edef
+   /psDPI 72 def
+   /sDPI psDPI outputDPI div def % DPI scale
+   width sDPI mul % width * (psDPI / outputDPI)
+   height sDPI mul
+   scale
+} def
+
+% LineAttribute methods.linewidth linejoin linecap [dashpattern] dashOffset colorVal(s) <method>
+/LAG {setgray setdash setlinecap setlinejoin setlinewidth} bd
+/LAR {setrgbcolor setdash setlinecap setlinejoin setlinewidth} bd
+/LAC {setcmykcolor setdash setlinecap setlinejoin setlinewidth} bd
+
+% draw line impl
+/DL { % VertexList NVerts StartPt DL
+  N moveto { lineto } repeat stroke} def
+% draw unfilled polyline impl
+/DPL { % VertexList NVerts StartPt DPL
+  N moveto { lineto } repeat closepath stroke} def
+% draw filled polyline impl
+/DPLF { % VertexList NVerts StartPt DPLF
+  N moveto { lineto } repeat closepath fill } def
+/DRL { % VertexList NVerts StartPt DRL
+  N moveto { rlineto } repeat stroke} def
+% draw unfilled polyline impl
+/DRPL { % VertexList NVerts StartPt DRPL
+  N moveto { rlineto } repeat closepath stroke} def
+% draw filled polyline impl
+/DRPLF { % VertexList NVerts StartPt DRPLF
+  N moveto { rlineto } repeat closepath fill } def
+
+%%Page: 1 1
+%%PageBoundingBox:    0     0   558   376
+%%BeginPageSetup
+N
+0 0 M
+557.5 0 L
+557.5 375.31 L
+0 375.31 L
+cp
+clip
+0.00 GC
+0 375.31 557.5 375.31 557.5 0 3 0 0 DPLF
+[  0.75 0 0 -0.75 0 375.312] CT
+%%EndPageSetup
+-52.67 -4.25 TX
+1.00 LW
+0.07 GC
+788 52 788 467 113 467 3 113 52 DPLF
+0.67 2 2 [] 0 0.85 LAG
+788 467 1 113 467 DL
+113 460.25 1 113 467 DL
+225.5 460.25 1 225.5 467 DL
+338 460.25 1 338 467 DL
+450.5 460.25 1 450.5 467 DL
+563 460.25 1 563 467 DL
+675.5 460.25 1 675.5 467 DL
+788 460.25 1 788 467 DL
+/Helvetica 13.3333 F
+GS
+109.5 484.33 M
+1 -1 scale
+(0) t
+GR
+GS
+216.5 484.33 M
+1 -1 scale
+(0.1) t
+GR
+GS
+329 484.33 M
+1 -1 scale
+(0.2) t
+GR
+GS
+441.5 484.33 M
+1 -1 scale
+(0.3) t
+GR
+GS
+554 484.33 M
+1 -1 scale
+(0.4) t
+GR
+GS
+666.5 484.33 M
+1 -1 scale
+(0.5) t
+GR
+GS
+779 484.33 M
+1 -1 scale
+(0.6) t
+GR
+/Helvetica 14.6667 F
+GS
+402.5 501.67 M
+1 -1 scale
+(Frequency \(Hz\)) t
+GR
+113 52 1 113 467 DL
+119.75 466.68 1 113 466.68 DL
+119.75 344.71 1 113 344.71 DL
+119.75 258.18 1 113 258.18 DL
+119.75 191.05 1 113 191.05 DL
+119.75 136.21 1 113 136.21 DL
+119.75 89.84 1 113 89.84 DL
+116.38 431.25 1 113 431.25 DL
+116.38 399.56 1 113 399.56 DL
+116.38 370.89 1 113 370.89 DL
+116.38 320.64 1 113 320.64 DL
+116.38 298.34 1 113 298.34 DL
+116.38 277.59 1 113 277.59 DL
+116.38 239.94 1 113 239.94 DL
+116.38 222.75 1 113 222.75 DL
+116.38 206.48 1 113 206.48 DL
+116.38 176.38 1 113 176.38 DL
+116.38 162.38 1 113 162.38 DL
+116.38 149.01 1 113 149.01 DL
+116.38 123.93 1 113 123.93 DL
+116.38 112.13 1 113 112.13 DL
+116.38 100.78 1 113 100.78 DL
+116.38 79.28 1 113 79.28 DL
+116.38 69.09 1 113 69.09 DL
+116.38 59.22 1 113 59.22 DL
+/Helvetica 13.3333 F
+GS
+78.67 471.18 M
+1 -1 scale
+(4000) t
+GR
+GS
+78.67 349.21 M
+1 -1 scale
+(6000) t
+GR
+GS
+78.67 262.68 M
+1 -1 scale
+(8000) t
+GR
+GS
+71.67 195.55 M
+1 -1 scale
+(10000) t
+GR
+GS
+71.67 140.71 M
+1 -1 scale
+(12000) t
+GR
+GS
+71.67 94.34 M
+1 -1 scale
+(14000) t
+GR
+/Helvetica 14.6667 F
+GS
+62.67 358.5 M
+1 -1 scale
+90 R
+(Power spectral density \(a.u./Hz\)) t
+GR
+/Helvetica-Bold 14.6667 F
+GS
+366.5 14.25 M
+1 -1 scale
+(Resting-state vessel PSD) t
+GR
+GS
+305.5 30.25 M
+1 -1 scale
+(single run \(~5min\) averaged across vessels) t
+GR
+GS
+330 46.25 M
+1 -1 scale
+(TW=6, K=11, W\(halfBW\)=0.020466Hz) t
+GR
+0.67 2 0 [] 0 0.15 0.55 0.87 LAR
+2.616 -5.599 2.616 7.482 2.616 3.325 2.616 1.302 2.616 -0.036 2.616 0.458 2.616 -1.784 2.616 1.68 2.616 -3.597 2.616 -0.237 2.616 5.204 2.616 -9.365 2.616 -0.142 2.616 -5.388 2.616 5.388 2.616 3.697 2.616 6.631 
+2.616 2.952 2.616 -7.195 2.616 -1.956 2.616 -7.293 2.616 2.619 2.616 -6.33 2.616 0.52 2.616 -2.62 2.616 1.453 2.616 3.538 2.616 -1.672 2.616 7.309 2.616 3.95 2.616 -2.905 2.616 0.262 2.616 -2.955 2.616 -9.935 
+2.616 4.878 2.616 -1.062 2.616 6.919 2.616 -0.576 2.616 2.371 2.616 -0.161 2.616 1.828 2.616 -1.446 2.616 4.158 2.616 1.249 2.616 -5.115 2.616 1.077 2.616 -3.727 2.616 1.486 2.616 2.533 2.616 2.947 2.616 1.336 
+2.616 -1.995 2.616 3.221 2.616 -7.312 2.616 -1.473 2.616 1.99 2.616 -2.157 2.616 2.88 2.616 -3.743 2.616 1.68 2.616 0.461 2.616 -0.91 2.616 -1.751 2.616 1.029 2.616 5.239 2.616 2.389 2.616 0.552 2.616 -1.673 
+2.616 -1.036 2.616 3.365 2.616 -6.146 2.616 4.037 2.616 0.41 2.616 3.579 2.616 -0.32 2.616 -3.015 2.616 -8.149 2.616 -3.037 2.616 3.553 2.616 1.118 2.616 -3.903 2.616 3.382 2.616 -1.537 2.616 -0.594 
+2.616 -3.376 2.616 1.922 2.616 -3.734 2.616 -4.004 2.616 2.024 2.616 -1.481 2.616 4.737 2.616 0.267 2.616 10.261 2.616 4.428 2.616 -2.639 2.616 -10.501 2.616 -0.928 2.616 3.09 2.616 -1.215 2.616 5.409 
+2.616 2.538 2.616 0.56 2.616 4.95 2.616 -0.048 2.616 0.024 2.616 -3.975 2.616 0.716 2.616 1.873 2.616 4.56 2.616 -0.993 2.616 -1.759 2.616 2.505 2.616 4.799 2.616 -8.281 2.616 -2.087 2.616 -6.734 2.616 -0.434 
+2.616 -7.34 2.616 -0.86 2.616 -5.032 2.616 5.764 2.616 -3.474 2.616 -1.553 2.616 3.251 2.616 1.864 2.616 4.029 2.616 -2.596 2.616 8.54 2.616 6.33 2.616 -3.621 2.616 3.147 2.616 2.982 2.616 4.932 2.616 3.489 
+2.616 2.356 2.616 10.057 2.616 4.144 2.616 4.151 2.616 9.368 2.616 4.736 2.616 4.461 2.616 10.649 2.616 -1.844 2.616 2.797 2.616 4.212 2.616 -2.924 2.616 9.196 2.616 -3.708 2.616 7.592 2.616 -1.032 2.616 -0.885 
+2.616 1.254 2.616 -3.739 2.616 -3.725 2.616 0.714 2.616 3.826 2.616 -2.621 2.616 -2.778 2.616 -1.17 2.616 -10.374 2.616 -3.671 2.616 -13.403 2.616 4.923 2.616 -1.867 2.616 2.779 2.616 -5.641 2.616 3.399 
+2.616 -2.226 2.616 1.362 2.616 -7.477 2.616 8.711 2.616 -6.05 2.616 -1.673 2.616 -5.468 2.616 3.232 2.616 -3.107 2.616 11.062 2.616 0.7 2.616 0.968 2.616 26.595 2.616 19.279 2.616 12.737 2.616 13.884 
+2.616 5.277 2.616 2.784 2.616 11.659 2.616 30.631 2.616 10.072 2.616 -1.696 2.616 1.696 2.616 26.847 2.616 32.756 2.616 64.669 2.616 1.684 2.616 -9.225 2.616 41.655 2.616 -12.334 2.616 26.358 2.616 -3.321 
+2.616 6.624 2.616 3.684 2.616 16.022 2.616 3.799 2.616 2.758 2.616 8.59 2.616 -4.467 2.616 -4.506 2.616 16.138 2.616 -48.904 2.616 2.882 2.616 14.072 2.616 -25.127 2.616 -2.885 2.616 -4.861 2.616 -14.414 
+2.616 -30.915 2.616 -6.05 2.616 3.476 2.616 -24.93 2.616 20.787 2.616 -18.135 2.616 10.783 2.616 0.456 2.616 -2.419 2.616 26.7 2.616 -7.139 2.616 -12.667 2.616 3.145 2.616 13.043 2.616 4.822 2.616 8.641 
+2.616 -4.535 2.616 -2.134 2.616 0.781 2.616 -9.31 2.616 -9.812 2.616 -5.895 2.616 -1.194 2.616 2.919 2.616 0.223 2.616 0.198 2.616 -4.051 2.616 2.577 2.616 3.582 2.616 7.509 2.616 25.575 2.616 -16.772 
+2.616 -16.963 2.616 -18.153 2.616 1.38 2.616 2.868 2.616 -2.427 2.616 5.109 2.616 18.529 2.616 2.475 2.616 -3.83 256 113 162.99 DRL
+%%Trailer
+%%Pages: 1
+%%EOF
